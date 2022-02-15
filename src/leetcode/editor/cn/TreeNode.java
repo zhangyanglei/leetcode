@@ -1,7 +1,7 @@
 package leetcode.editor.cn;
 
 /**
- * @author zhangyanglei <zhangyanglei@kuaishou.com>
+ * @author zhangyanglei
  * Created on 2022-01-27
  */
 public class TreeNode {
