@@ -1,0 +1,198 @@
+## 动态规划【空格技巧】
+
+这是一道「最长公共子序列（LCS）」的裸题。
+
+对于这类题的都使用如下「状态定义」即可：
+
+**$f[i][j]$ 代表考虑 $s1$ 的前 $i$ 个字符、考虑 $s2$ 的前 $j$ 的字符，形成的最长公共子序列长度。**
+
+当有了「状态定义」之后，基本上「转移方程」就是呼之欲出：
+
+* `s1[i]==s2[j]` : $f[i][j]=f[i-1][j-1]+1$。代表**必然使用 $s1[i]$ 与 $s2[j]$ 时** LCS 的长度。
+* `s1[i]!=s2[j]` : $f[i][j]=max(f[i-1][j], f[i][j-1])$。代表**必然不使用 $s1[i]$（但可能使用$s2[j]$）时** 和 **必然不使用 $s2[j]$（但可能使用$s1[i]$）时** LCS 的长度。
+
+一些编码细节：
+
+通常我会习惯性往字符串头部追加一个空格，以减少边界判断（使下标从 1 开始，并很容易构造出可滚动的「有效值」）。
+
+代码（感谢 [@Qian](/u/qiank/) 同学提供的 cpp 版本）：
+
+* []
+
+```Java
+class Solution {
+    public int longestCommonSubsequence(String s1, String s2) {
+        int n = s1.length(), m = s2.length();
+        s1 = " " + s1; s2 = " " + s2;
+        char[] cs1 = s1.toCharArray(), cs2 = s2.toCharArray();
+        int[][] f = new int[n + 1][m + 1]; 
+
+        // 因为有了追加的空格，我们有了显然的初始化值（以下两种初始化方式均可）
+        // for (int i = 0; i <= n; i++) Arrays.fill(f[i], 1);
+        for (int i = 0; i <= n; i++) f[i][0] = 1;
+        for (int j = 0; j <= m; j++) f[0][j] = 1;
+
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= m; j++) {
+                if (cs1[i] == cs2[j]) {
+                    f[i][j] = f[i -1][j - 1] + 1;
+                } else {
+                    f[i][j] = Math.max(f[i - 1][j], f[i][j - 1]);
+                }
+            }
+        }
+
+        // 减去最开始追加的空格
+        return f[n][m] - 1;
+    }
+}
+```
+
+* []
+
+```C++
+class Solution {
+public:
+    int longestCommonSubsequence(string s1, string s2) {
+    	int n = s1.size(), m = s2.size();
+    	s1 = " " + s1, s2 = " " + s2;
+    	int f[n+1][m+1];
+    	memset(f, 0, sizeof(f));
+
+    	for(int i = 0; i <= n; i++) f[i][0] = 1;
+    	for(int j = 0; j <= m; j++) f[0][j] = 1;
+
+    	for(int i = 1; i <= n; i++) {
+    		for(int j = 1; j <= m; j++) {
+    			if(s1[i] == s2[j])
+    				f[i][j] = max(f[i-1][j-1] + 1, max(f[i-1][j], f[i][j-1]));
+    			else
+    				f[i][j] = max(f[i-1][j], f[i][j-1]);
+    		}
+    	}
+
+    	return f[n][m] - 1;
+    }
+};
+```
+
+* 时间复杂度：$O(n * m)$
+* 空间复杂度：$O(n * m)$
+
+---
+
+## 动态规划【利用偏移】
+
+上述「追加空格」的做法是我比较习惯的做法 🤣
+
+事实上，我们也可以通过修改「状态定义」来实现递推：
+
+**$f[i][j]$ 代表考虑 $s1$ 的前 $i - 1$ 个字符、考虑 $s2$ 的前 $j - 1$ 的字符，形成的最长公共子序列长度。**
+
+那么最终的 $f[n][m]$ 就是我们的答案，$f[0][0]$ 当做无效值，不处理即可。
+
+* `s1[i-1]==s2[j-1]` : $f[i][j]=f[i-1][j-1]+1$。代表使用 $s1[i-1]$ 与 $s2[j-1]$形成最长公共子序列的长度。
+* `s1[i-1]!=s2[j-1]` : $f[i][j]=max(f[i-1][j], f[i][j-1])$。代表不使用 $s1[i-1]$ 形成最长公共子序列的长度、不使用 $s2[j-1]$ 形成最长公共子序列的长度。这两种情况中的最大值。
+
+代码（感谢 [@宫水三叶的小迷妹](/u/san_ye_fen/)、[@🍭可乐可乐吗QAQ](/u/littletime_cc/) 和 [@007](/u/007-v8/) 三位同学提供的 Python、C++ 和 Go 版本）：
+
+* []
+
+```Java
+class Solution {
+    public int longestCommonSubsequence(String s1, String s2) {
+        int n = s1.length(), m = s2.length();
+        char[] cs1 = s1.toCharArray(), cs2 = s2.toCharArray();
+        int[][] f = new int[n + 1][m + 1]; 
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= m; j++) {
+                if (cs1[i - 1] == cs2[j - 1]) {
+                    f[i][j] = f[i - 1][j - 1] + 1;
+                } else {
+                    f[i][j] = Math.max(f[i - 1][j], f[i][j - 1]);
+                }
+            }
+        }
+        return f[n][m];
+    }
+}
+```
+
+* []
+
+```Python3
+class Solution:
+    def longestCommonSubsequence(self, text1: str, text2: str) -> int:
+        m, n = len(text1), len(text2)
+        dp = [[0] * (n + 1) for _ in range(m + 1)]
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                if text1[i - 1] == text2[j - 1]:
+                    dp[i][j] = dp[i - 1][j - 1] + 1
+                else:
+                    dp[i][j] = max(dp[i - 1][j],dp[i][j - 1])
+        return dp[m][n]
+```
+
+* []
+
+```C++
+class Solution {
+public:
+    int longestCommonSubsequence(string text1, string text2) {
+        int m = text1.size(), n = text2.size();
+        vector<vector<int>> dp(m + 1,vector<int>(n + 1,0));
+        for(int i = 1; i <= m; i++){
+            for(int j = 1; j <= n; j++){
+                if(text1[i - 1] == text2[j - 1]){
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                }
+                else{
+                    dp[i][j] = max(dp[i - 1][j],dp[i][j - 1]);
+                }
+            }
+        }
+        return dp[m][n];
+    }
+};
+```
+
+* []
+
+```Golang
+func longestCommonSubsequence(text1 string, text2 string) int {
+	m := len(text1)
+	n := len(text2)
+	dp := make([][]int, m+1)
+	for i := range dp {
+		dp[i] = make([]int, n+1)
+	}
+	for i := 0; i < m; i++ {
+		for j := 0; j < n; j++ {
+			if text1[i] == text2[j] {
+				dp[i+1][j+1] = dp[i][j] + 1
+			} else {
+				dp[i+1][j+1] = max(dp[i][j+1], dp[i+1][j])
+			}
+		}
+	}
+	return dp[m][n]
+}
+func max(i int, j int) int {
+	if i > j {
+		return i
+	}
+	return j
+}
+```
+
+* 时间复杂度：$O(n * m)$
+* 空间复杂度：$O(n * m)$
+
+---
+
+## 最后
+
+**如果有帮助到你，请给题解点个赞和收藏，让更多的人看到 ~ ("▔□▔)/**
+
+也欢迎你 [关注我](https://leetcode-cn.com/u/ac_oier/) ，提供追求「证明」&「思路」的高质量题解

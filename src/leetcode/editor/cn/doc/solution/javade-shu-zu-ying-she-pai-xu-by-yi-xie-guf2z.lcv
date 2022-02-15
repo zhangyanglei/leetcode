@@ -1,0 +1,24 @@
+* 
+
+```
+class Solution {
+    public int halfQuestions(int[] questions) {
+        int length = questions.length;
+        int[] res = new int[1000]; // 因为类型最多有1000种，随机选取
+        int peoNum = length / 2;
+        int add = 0;
+        for (int question : questions) {
+            res[--question]++; // 映射到数组的0-999
+        }
+        Arrays.sort(res); // 常用的数组的排序方法，从小到大排序的
+        for (int i = res.length - 1; i >= 0; i--) {
+            add += res[i]; // 所以倒着遍历，对前排数量多的类型求和
+            if (add >= peoNum) {
+                return res.length - i; // 如果类型个数大于等于参加的人数就返回
+            }
+        }
+        return -1; // 因为系统默认if不一定成立，所以要有个一定可以执行的return
+    }
+}
+```
+

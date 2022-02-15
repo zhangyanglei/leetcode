@@ -1,0 +1,27 @@
+### 解题思路
+
+看到很多思路都是位移，其实用数学的方法更简单。
+
+我们只需要记得：两个数相乘，底数相同，则指数相加。例：(a^2)*(a^2)=a^4
+那么就得出(2^a)*(2^b)=2^(a+b)，然后用对数就能算出a+b，可是Math.log方法中不能自定义底数。
+
+那就用到对数的数学公式：两个对数相除，底数相同时，可以转为一个对数计算，分母的指数作为底，分子的指数作为指数。例：log100/log10=log10(100)
+所以得出 a+b=log2(2^(a+b))=log(2^(a+b))/log2
+
+执行用时：0ms  击败100%
+内存消耗：35MB 击败74.85%
+
+### 代码
+
+* java
+
+```java
+class Solution {
+    public int getSum(int a, int b) {
+        double temp=Math.pow(2, a)*Math.pow(2, b);
+        double sum=Math.log(temp)/Math.log(2);
+        return (int)sum;
+    }
+}
+```
+

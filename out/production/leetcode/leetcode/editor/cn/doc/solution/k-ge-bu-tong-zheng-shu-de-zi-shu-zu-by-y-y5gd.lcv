@@ -1,0 +1,109 @@
+将恰好k个转化为$最多（k）个-最多（k-1）个的问题$
+则现在的问题是解决 $\Large 最多包含k个不同整数的子数组的数量$
+
+### 滑动窗口
+
+因为数据范围：
+$1 <= A.length <= 20000$
+$1 <= A[i] <= A.length$
+则可使用一个数组来维护窗口内各个数出现的次数，在定义一个size用来维护窗口内不同整数的数量
+
+#### 实现一
+
+对于每个位置的数考虑，以它开始的【最多包含k个不同整数的子数组】，假设left指针指向当前位置，right指向处为不满足点，则以A[left]开始的【最多包含k个不同整数的子数组】有$right-left$个，
+即
+$【A[left]】$
+$【A[left],A[left+1]】$
+...
+$【A[left],A[left+1],...,A[right-1]】$
+**以k=2为例**
+
+<![未命名文件 (1).png](https://pic.leetcode-cn.com/1612840685-pSnRKP-%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6%20(1).png),![未命名文件.png](https://pic.leetcode-cn.com/1612840590-cFDNVV-%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6.png),![未命名文件 (5).png](https://pic.leetcode-cn.com/1612840995-RYZrXa-%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6%20(5).png),![未命名文件 (6).png](https://pic.leetcode-cn.com/1612841060-OPuQWt-%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6%20(6).png),![未命名文件 (10).png](https://pic.leetcode-cn.com/1612841483-BJOeAk-%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6%20(10).png),![未命名文件 (11).png](https://pic.leetcode-cn.com/1612841548-KKbgNV-%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6%20(11).png)>
+
+* java
+
+```java
+class Solution {
+    int count[] ={};
+    int size=0;
+    public int subarraysWithKDistinct(int[] A, int K) {
+        return getMaxK(A,K)-getMaxK(A,K-1);
+    }
+
+    private int getMaxK(int[] A,int k){
+        count =new int[A.length+1];
+        size = 0;
+        int result=0;
+        int left=0 ,right=0;
+        while (left<A.length){
+            while (right<A.length && size<=k && (size!=k || count[A[right]]!=0) ){
+                add(A[right++]);
+            }
+            result+=right-left;
+            remove(A[left++]);
+        }
+        return result;
+    }
+
+    private void add(int i){
+        if(count[i]==0) size++;
+        count[i]++;
+    }
+
+    private void remove(int i){
+        if(count[i]==1) size--;
+        count[i]--;
+    }
+}
+```
+
+#### 实现二
+
+对于每个位置的数考虑，以它结尾的【最多包含k个不同整数的子数组】
+假设left指针指向满足条件的窗口最左侧，right指向处为当前位置，则以A[right]结尾的【最多包含k个不同整数的子数组】有$right+1-left$个，
+即
+$【A[right]】$
+$【A[right-1],A[right]】$
+...
+$【A[left],A[left+1],...,A[right]】$
+**以k=2为例**
+
+<![未命名文件 (17).png](https://pic.leetcode-cn.com/1612845347-rlfvGR-%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6%20(17).png),![未命名文件 (12).png](https://pic.leetcode-cn.com/1612845252-SAauNp-%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6%20(12).png),![未命名文件 (13).png](https://pic.leetcode-cn.com/1612845259-hHeyAm-%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6%20(13).png),![未命名文件 (14).png](https://pic.leetcode-cn.com/1612845265-JsmKiA-%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6%20(14).png),![未命名文件 (15).png](https://pic.leetcode-cn.com/1612845272-WKNfUx-%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6%20(15).png),![未命名文件 (16).png](https://pic.leetcode-cn.com/1612845279-QhKRtY-%E6%9C%AA%E5%91%BD%E5%90%8D%E6%96%87%E4%BB%B6%20(16).png)>
+
+* java
+
+```java
+class Solution {
+    int count[] ={};
+    int size=0;
+    public int subarraysWithKDistinct(int[] A, int K) {
+        return getMaxK(A,K)-getMaxK(A,K-1);
+    }
+
+    private int getMaxK(int[] A,int k){
+        count =new int[A.length+1];
+        size = 0;
+        int result=0;
+        int left=0 ,right=0;
+        while (right < A.length){
+            add(A[right]);
+            while (size>k) {
+                remove(A[left++]);
+            }
+            result+=right+1-left;
+            right++;
+        }
+        return result;
+    }
+    private void add(int i){
+        if(count[i]==0) size++;
+        count[i]++;
+    }
+
+    private void remove(int i){
+        if(count[i]==1) size--;
+        count[i]--;
+    }
+}
+```
+

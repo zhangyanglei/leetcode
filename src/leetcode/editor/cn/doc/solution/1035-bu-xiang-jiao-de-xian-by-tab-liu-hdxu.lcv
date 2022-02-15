@@ -1,0 +1,25 @@
+[最长公共子序列](https://leetcode-cn.com/problems/longest-common-subsequence/solution/1143-zui-chang-gong-gong-zi-xu-lie-by-ta-9k76/)
+
+* rust
+
+```rust
+impl Solution {
+    pub fn max_uncrossed_lines(nums1: Vec<i32>, nums2: Vec<i32>) -> i32 {
+        let mut dp = vec![0; nums2.len() + 1];
+        for c in nums1 {
+            let mut pre = 0;
+            for j in 1..=nums2.len() {
+                let tmp = dp[j];
+                if nums2[j - 1] == c {
+                    dp[j] = pre + 1;
+                } else {
+                    dp[j] = dp[j].max(dp[j - 1]);
+                }
+                pre = tmp;
+            }
+        }
+        dp[nums2.len()]
+    }
+}
+```
+
